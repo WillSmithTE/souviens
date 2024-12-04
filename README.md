@@ -23,3 +23,8 @@ npm run typegen
 ```
 
 You will need to rerun typegen whenever you make changes to `wrangler.toml`.
+
+## Next
+
+[] Don't close datepicker on press next
+[] Easy datepicker future years

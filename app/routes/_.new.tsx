@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PopoverClose } from "@radix-ui/react-popover";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect, useFetcher } from "@remix-run/react";
 import { format } from "date-fns";
@@ -155,16 +154,14 @@ export default function CreateReminder() {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
-            <PopoverClose>
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(selectedDate) => {
-                  if (selectedDate) setValue("date", selectedDate);
-                }}
-                initialFocus
-              />
-            </PopoverClose>
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={(selectedDate) => {
+                if (selectedDate) setValue("date", selectedDate);
+              }}
+              initialFocus
+            />
           </PopoverContent>
         </Popover>
 
