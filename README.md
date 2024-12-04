@@ -1,21 +1,17 @@
-# Welcome to Remix + Cloudflare!
+# migrations
 
-- 📖 [Remix docs](https://remix.run/docs)
-- 📖 [Remix Cloudflare docs](https://remix.run/guides/vite#cloudflare)
-
-## Development
-
-Run the dev server:
-
-```sh
-npm run dev
 ```
 
-To run Wrangler:
+npx wrangler d1 migrations create souviens-2 add_goals_sites_usages
 
-```sh
-npm run build
-npm run start
+npx prisma migrate diff --from-local-d1 --to-schema-datamodel ./prisma/schema.prisma --script --output migrations/0004_add_goal_time.sql
+
+npx wrangler d1 migrations apply souviens-2 --local
+
+npx wrangler d1 migrations apply souviens-2 --remote
+
+npx prisma generate
+
 ```
 
 ## Typegen
@@ -27,21 +23,3 @@ npm run typegen
 ```
 
 You will need to rerun typegen whenever you make changes to `wrangler.toml`.
-
-## Deployment
-
-First, build your app for production:
-
-```sh
-npm run build
-```
-
-Then, deploy your app to Cloudflare Pages:
-
-```sh
-npm run deploy
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.

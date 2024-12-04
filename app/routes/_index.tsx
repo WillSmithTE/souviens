@@ -1,59 +1,48 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { PlusCircle } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "~/components/ui/card";
+import { getPrisma } from "~/utils/db.server";
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
+  return [{ title: "Souviens" }, { name: "description", content: "" }];
+};
+
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const prisma = getPrisma({ context });
+  const items = await prisma.reminder.findMany({
+    select: {
+      id: true,
+      title: true,
+      tags: true,
+      imgUrl: true,
+      date: true,
+      createdAt: true,
+    },
+    orderBy: {
+      date: "asc",
+    },
+  });
+  return { items };
 };
 
 export default function Index() {
+  // <div className="flex h-screen items-center justify-center">
+
+  const { items } = useLoaderData<typeof loader>();
   return (
     // <div className="flex h-screen items-center justify-center">
-    <Home />
-    // </div>
-  );
-}
-
-// This would typically come from a database or API
-const reminders = [
-  {
-    id: 1,
-    title: "Anna",
-    tags: ["Baby names"],
-    imgUrl: "/placeholder.svg?height=200&width=200",
-    date: new Date("2034-12-25"),
-  },
-  {
-    id: 2,
-    title: "Buy Bitcoin",
-    tags: ["Investments", "Crypto"],
-    date: new Date("2025-01-01"),
-  },
-  {
-    id: 3,
-    title: "Learn Quantum Computing",
-    tags: ["Education", "Technology"],
-    imgUrl: "/placeholder.svg?height=200&width=200",
-    date: new Date("2030-06-15"),
-  },
-];
-
-function Home() {
-  return (
     <main className="container mx-auto px-4 py-2 md:py-2">
       <h1 className="text-2xl text-left font-bold mb-2 md:mb-4">Souviens</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {reminders.map((reminder) => (
+        {items.map((reminder) => (
           <Card key={reminder.id} className="overflow-hidden">
             <CardHeader>
               <h2 className="text-xl font-semibold">{reminder.title}</h2>
@@ -69,9 +58,9 @@ function Home() {
             )}
             <CardContent className="mt-4">
               <div className="flex flex-wrap gap-2">
-                {reminder.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary">
-                    {tag}
+                {reminder.tags.map((tag) => (
+                  <Badge key={tag.id} variant="secondary">
+                    {tag.name}
                   </Badge>
                 ))}
               </div>
@@ -95,18 +84,37 @@ function Home() {
 }
 
 function CreateReminderButton() {
-  const handleCreateReminder = () => {
-    // This would typically open a modal or navigate to a create reminder page
-    alert("Create new reminder");
-  };
-
   return (
-    <Button
-      className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg"
-      onClick={handleCreateReminder}
+    <Link
+      className="bg-orange-600 fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-lg flex items-center"
+      to="new"
     >
-      <PlusCircle className="w-6 h-6" />
+      <PlusCircle className="mx-auto my-auto w-6 h-6" />
       <span className="sr-only">Create new reminder</span>
-    </Button>
+    </Link>
   );
 }
+
+// This would typically come from a database or API
+const testReminders = [
+  {
+    id: 1,
+    title: "Anna",
+    tags: ["Baby names"],
+    imgUrl: "/placeholder.svg?height=200&width=200",
+    date: new Date("2034-12-25"),
+  },
+  {
+    id: 2,
+    title: "Buy Bitcoin",
+    tags: ["Investments", "Crypto"],
+    date: new Date("2025-01-01"),
+  },
+  {
+    id: 3,
+    title: "Learn Quantum Computing",
+    tags: ["Education", "Technology"],
+    imgUrl: "/placeholder.svg?height=200&width=200",
+    date: new Date("2030-06-15"),
+  },
+];
