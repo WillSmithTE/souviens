@@ -39,47 +39,57 @@ export default function Index() {
   const { items } = useLoaderData<typeof loader>();
   return (
     // <div className="flex h-screen items-center justify-center">
-    <main className="container mx-auto px-4 py-2 md:py-2">
-      <h1 className="text-2xl text-left font-bold mb-2 md:mb-4">Souviens</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((reminder) => (
-          <Card key={reminder.id} className="overflow-hidden">
-            <CardHeader>
-              <h2 className="text-xl font-semibold">{reminder.title}</h2>
-            </CardHeader>
-            {reminder.imgUrl && (
-              <img
-                src={reminder.imgUrl}
-                alt={reminder.title}
-                width={400}
-                height={200}
-                className="w-full object-cover"
-              />
-            )}
-            <CardContent className="mt-4">
-              <div className="flex flex-wrap gap-2">
-                {reminder.tags.map((tag) => (
-                  <Badge key={tag.id} variant="secondary">
-                    {tag.name}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-            <CardFooter>
-              <p className="text-sm text-muted-foreground">
-                Reminder set for:{" "}
-                {reminder.date.toLocaleDateString("en-US", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </p>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-      <CreateReminderButton />
-    </main>
+    <div>
+      <main className="container mx-auto px-4 py-2 md:py-2">
+        <h1 className="text-2xl text-left font-bold mb-2 md:mb-4">Souviens</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {items.map((reminder) => (
+            <Card key={reminder.id} className="overflow-hidden">
+              <CardHeader>
+                <h2 className="text-xl font-semibold">{reminder.title}</h2>
+              </CardHeader>
+              {reminder.imgUrl && (
+                <img
+                  src={reminder.imgUrl}
+                  alt={reminder.title}
+                  width={400}
+                  height={200}
+                  className="w-full object-cover"
+                />
+              )}
+              <CardContent className="mt-4">
+                <div className="flex flex-wrap gap-2">
+                  {reminder.tags.map((tag) => (
+                    <Badge key={tag.id} variant="secondary">
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter>
+                <p className="text-sm text-muted-foreground">
+                  Reminder set for:{" "}
+                  {reminder.date.toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+        <CreateReminderButton />
+      </main>
+      <footer className="bg-gray-800 px-6 py-2 text-sm text-gray-400">
+        <p className="text-center">
+          Made by{" "}
+          <Link to="https://willsmithte.com" className="underline">
+            Will Smith
+          </Link>
+        </p>
+      </footer>
+    </div>
   );
 }
 
