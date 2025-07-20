@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect, useFetcher } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, useFetcher, useLoaderData } from "@remix-run/react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -14,9 +14,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
+import { ImageUpload } from "~/components/ui/image-upload";
 import { cn } from "~/lib/utils";
 import { getPrisma } from "~/utils/db.server";
 import { deserialise, jsonToFormData } from "~/utils/deserialise";
+
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  const prisma = getPrisma({ context });
+  const tags = await prisma.tag.findMany();
+  return { tags };
+};
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const { date, title, imgUrl, tags } = await deserialise(
@@ -82,6 +89,7 @@ export default function CreateReminder() {
     },
   });
 
+  const { tags } = useLoaderData<typeof loader>();
   const date = watch("date");
   const fetcher = useFetcher();
 
@@ -130,10 +138,18 @@ export default function CreateReminder() {
           {errors.tags?.message ?? <>&nbsp;</>}
         </p>
 
-        <Label htmlFor="imgUrl" className="text-right">
-          Image URL
+        <Label className="text-right">
+          Image
         </Label>
-        <Input id="imgUrl" {...register("imgUrl")} className="col-span-3" />
+        <ImageUpload
+          onUpload={(url) => setValue("imgUrl", url)}
+          onRemove={() => setValue("imgUrl", "")}
+          currentImage={watch("imgUrl")}
+        />
+        <Label htmlFor="imgUrl" className="text-right text-sm text-gray-500">
+          Or paste image URL
+        </Label>
+        <Input id="imgUrl" {...register("imgUrl")} className="col-span-3" placeholder="https://..." />
         <p className="col-span-4 text-red-500 text-sm">
           {errors.imgUrl?.message ?? <>&nbsp;</>}
         </p>
@@ -170,7 +186,7 @@ export default function CreateReminder() {
         </p>
       </div>
       <div className="text-right">
-        <Button type="submit">Create Reminder</Button>
+        <Button type="submit">Create</Button>
       </div>
     </form>
   );
