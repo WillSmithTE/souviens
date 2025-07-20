@@ -1,21 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect, useFetcher, useLoaderData } from "@remix-run/react";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
+import { ImageUpload } from "~/components/ui/image-upload";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { ImageUpload } from "~/components/ui/image-upload";
-import { cn } from "~/lib/utils";
 import { getPrisma } from "~/utils/db.server";
 import { deserialise, jsonToFormData } from "~/utils/deserialise";
 
@@ -90,7 +81,6 @@ export default function CreateReminder() {
   });
 
   const { tags } = useLoaderData<typeof loader>();
-  const date = watch("date");
   const fetcher = useFetcher();
 
   const onSubmit = (data: ReminderForm) => {
@@ -101,7 +91,11 @@ export default function CreateReminder() {
     const dto: CreateReminderDTO = {
       ...data,
       date: data.date.getTime(),
-      tags: data.tags?.split(",").map((tag) => tag.trim()) ?? [],
+      tags:
+        data.tags
+          ?.split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag !== "") ?? [],
     };
     fetcher.submit(jsonToFormData(dto), { method: "post" });
   };
@@ -109,10 +103,10 @@ export default function CreateReminder() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-[90%] max-w-md px-4 my-4"
+      className="w-[90%] max-w-md px-4 my-4 mx-auto"
     >
-      <div className="flex flex-col items-start gap-2 md:gap-4">
-        <Label htmlFor="title" className="text-right">
+      <div className="flex flex-col items-start gap-0">
+        <Label htmlFor="title" className="text-right mb-1">
           Title
         </Label>
         <Input
@@ -124,7 +118,7 @@ export default function CreateReminder() {
         <p className="col-span-4 text-red-500 text-sm">
           {errors.title?.message ?? <>&nbsp;</>}
         </p>
-        <Label htmlFor="tags" className="text-right">
+        <Label htmlFor="tags" className="text-right mb-1">
           Tags
         </Label>
         <Input
@@ -138,48 +132,38 @@ export default function CreateReminder() {
           {errors.tags?.message ?? <>&nbsp;</>}
         </p>
 
-        <Label className="text-right">
-          Image
-        </Label>
+        <Label className="text-right mb-1">Image</Label>
         <ImageUpload
           onUpload={(url) => setValue("imgUrl", url)}
           onRemove={() => setValue("imgUrl", "")}
           currentImage={watch("imgUrl")}
         />
-        <Label htmlFor="imgUrl" className="text-right text-sm text-gray-500">
+        <Label
+          htmlFor="imgUrl"
+          className="text-right text-sm text-gray-500 mb-1"
+        >
           Or paste image URL
         </Label>
-        <Input id="imgUrl" {...register("imgUrl")} className="col-span-3" placeholder="https://..." />
+        <Input
+          id="imgUrl"
+          {...register("imgUrl")}
+          className="col-span-3"
+          placeholder="https://..."
+        />
         <p className="col-span-4 text-red-500 text-sm">
           {errors.imgUrl?.message ?? <>&nbsp;</>}
         </p>
-        <Label htmlFor="date" className="text-right">
+        <Label htmlFor="date" className="text-right mb-1">
           Date
         </Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant={"outline"}
-              className={cn(
-                "w-[280px] justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : <span>Pick a date</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={(selectedDate) => {
-                if (selectedDate) setValue("date", selectedDate);
-              }}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+        <Input
+          id="date"
+          type="date"
+          {...register("date", {
+            setValueAs: (value) => (value ? new Date(value) : undefined),
+          })}
+          className="col-span-3"
+        />
 
         <p className="col-span-4 text-red-500 text-sm">
           {errors.date?.message ?? <>&nbsp;</>}
